@@ -1,71 +1,52 @@
-class Pessoa:
+from pessoa import Pessoa
+from db import inicializar_banco, inserir_beneficiario, listar_beneficiarios
 
-    nome: str
-    filiacao1: str
-    filiacao2: str
-    data_nasc: str
-    doc_identidade: int
-    nacionalidade: str
-    telefone: str
-    email: str
-    endereco_residencial: str
-    endereco_trabalho: str
-    cpf: str | None = None
-
-    def __init__(self, nome, filiacao1, filiacao2, data_nasc, doc_identidade, nacionalidade,telefone, email, endereco_residencial, endereco_trabalho, cpf=None):
-        self.nome = nome
-        self.filiacao1 = filiacao1
-        self.filiacao2 = filiacao2
-        self.cpf = cpf
-        self.data_nasc = data_nasc
-        self.doc_identidade = doc_identidade
-        self.nacionalidade = nacionalidade
-        self.telefone = telefone
-        self.email = email
-        self.endereco_residencial = endereco_residencial
-        self.endereco_trabalho = endereco_trabalho
-    
-    def __str__(self):
-        return f"Nome: {self.nome}, CPF: {self.cpf}, Data Nasc: {self.data_nasc}"
-        
-Pessoas = {
-    "Pessoas": [],
-}
+# Inicializa o banco se ainda não existir
+inicializar_banco()
 
 while True:
-    print("DECLARAÇÃO ELETRÔNICA E DEMAIS MEIOS DE CONTATO")
+    print("\nDECLARAÇÃO ELETRÔNICA E DEMAIS MEIOS DE CONTATO")
     print("1 - Cadastrar nova pessoa")
     print("2 - Listar pessoas cadastradas")
     print("0 - Sair")
-    
+
     opcao = input("Escolha uma opção: ")
 
     if opcao == "1":
-        nome = input("Nome completo: ").capitalize()
-        filiacao1 = input("Filiação 1: ").capitalize()
-        filiacao2 = input("Filiação 2: ").capitalize()
-        cpf = input("CPF (Quando disponivel): ").capitalize()
-        data_nasc = input("Data de nascimento: ").capitalize()
-        doc_identidade = input("Documento de identidade: ").capitalize()
-        nacionalidade = input("Nacionalidade: ").capitalize()
-        telefone = input("Telefones (com DDD): ").capitalize()
-        email = input("Endereço eletrônico (E-mail): ").capitalize()
-        endereco_residencial = input("Endereço residencial (com CEP): ").capitalize()
-        endereco_trabalho = input("Endereço do trabalho (com CEP): ").capitalize()
-    
-    
-        p = Pessoa(nome, filiacao1, filiacao2, data_nasc, doc_identidade, nacionalidade, telefone, email, endereco_residencial, endereco_trabalho, cpf)
-        Pessoas["Pessoas"].append(p)
-        print(f"\nPessoa {p.nome} cadastrada com sucesso!")
+        nome = input("Nome completo: ").strip().capitalize()
+        filiacao1 = input("Filiação 1: ").strip().capitalize()
+        filiacao2 = input("Filiação 2: ").strip().capitalize()
+        cpf = input("CPF (Quando disponível): ").strip()
+        data_nasc = input("Data de nascimento (AAAA-MM-DD): ").strip()
+        doc_identidade = input("Documento de identidade: ").strip()
+        nacionalidade = input("Nacionalidade: ").strip()
+        telefone = input("Telefone (apenas números): ").strip()
+        email = input("E-mail: ").strip()
+        endereco_residencial = input("Endereço residencial: ").strip()
+        endereco_trabalho = input("Endereço do trabalho: ").strip()
+
+        p = Pessoa(nome, filiacao1, filiacao2, data_nasc, doc_identidade,
+                   nacionalidade, telefone, email,
+                   endereco_residencial, endereco_trabalho, cpf)
+
+        try:
+            id_gerado = inserir_beneficiario(p)
+            print(f"\n Pessoa {p.nome} cadastrada com sucesso (ID {id_gerado})")
+        except Exception as e:
+            print(f" Erro ao cadastrar: {e}")
 
     elif opcao == "2":
-        if not Pessoas["Pessoas"]:
-            print("Nenhuma pessoa cadastrada.")
+        beneficiarios = listar_beneficiarios()
+        if not beneficiarios:
+            print("\n Nenhuma pessoa cadastrada.")
         else:
-            print("Pessoas cadastradas") 
-            for i, pessoa in enumerate(Pessoas["Pessoas"], 1):
-                print(f"{i}. {pessoa}")
+            print("\n Pessoas cadastradas no banco:")
+            for i, (id_benef, nome, cpf, data_nasc) in enumerate(beneficiarios, 1):
+                print(f"{i}. ID: {id_benef} | Nome: {nome} | CPF: {cpf} | Nasc: {data_nasc}")
 
     elif opcao == "0":
+        print("Encerrando o programa...")
         break
 
+    else:
+        print("Opção inválida.")
